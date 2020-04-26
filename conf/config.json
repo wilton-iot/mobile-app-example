@@ -1,0 +1,37 @@
+{
+    "appname": "example",
+    "appdir": "{{appdir}}",
+
+    "packages": [
+        "argparse",
+        "arrays",
+        "base64-js",
+        "buffer",
+        "events",
+        "ieee754",
+        "inherits",
+        "json",
+        "sprintf-js",
+        "text",
+        "typedarray",
+        "utf8",
+        "util",
+        "vue",
+        "vue-require",
+        "vue-router",
+        "vuex",
+        "wilton",
+        "wilton-mobile",
+        "wilton-requirejs"
+    ],
+
+    "server": {
+        "ipAddress": "0.0.0.0",
+        "tcpPort": 8080,
+        "tcpPort_DISABLED": 0
+    },
+
+    "android": {
+        "package": "mobile.example"
+    }
+}

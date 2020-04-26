@@ -1,0 +1,15 @@
+/nbproject
+/.idea
+/android/app/src/main/assets/*.zip
+/android/.gradle
+/android/app/build
+/android/.idea
+/android/*.iml
+/android/app/*.iml
+/android/local.properties
+/android/gradle
+/android/gradlew
+/android/gradlew.bat
+/work
+.DS_Store
+/ios/*.xcodeproj

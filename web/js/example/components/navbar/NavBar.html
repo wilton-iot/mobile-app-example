@@ -1,0 +1,60 @@
+<!--
+ Copyright 2020, alex at staticlibs.net
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+ http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+-->
+
+<div>
+    <div class="row fixed-top mb-0 bg-light">
+        <div class="col">
+            <div class="row justify-content-between">
+                <div class="col">
+                    <img
+                        v-bind:class="buttonCss"
+                        v-bind:src="image(buttonSvg)"
+                        v-on:click.stop.prevent="menu()">
+                    <span class="h5">example</span>
+                </div>
+                <div class="col text-right">
+                    <img
+                        v-bind:class="backCss"
+                        v-bind:src="image(backSvg)"
+                        v-on:click.stop.prevent="back()">
+                    <img
+                        v-bind:class="forwardCss"
+                        v-bind:src="image(forwardSvg)"
+                        v-on:click.stop.prevent="forward()">
+                </div>
+            </div>
+            <hr class="mt-0 mb-0"/>
+        </div>
+    </div>
+    <div class="example-navbar-height">
+    </div>
+    <!-- preload highlighted variants -->
+    <img 
+        v-bind:src="image('menu_white.svg')"
+        v-show="false">
+    <img 
+        v-bind:src="image('list-arrow.svg')"
+        v-show="false">
+    <img 
+        v-bind:src="image('list-arrow_white.svg')"
+        v-show="false">
+    <img 
+        v-bind:src="image('back-arrow.svg')"
+        v-show="false">
+    <img 
+        v-bind:src="image('back-arrow_white.svg')"
+        v-show="false">
+</div>

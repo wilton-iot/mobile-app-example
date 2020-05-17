@@ -14,27 +14,36 @@
  * limitations under the License.
  */
 
-package mobile.example.utils;
+package wilton.support;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.reflect.TypeToken;
+import com.google.gson.JsonElement;
 
 import java.lang.reflect.Type;
-import java.util.ArrayList;
-import java.util.LinkedHashMap;
 
 import wilton.rhino.RhinoScript;
 import wilton.rhino.RhinoScriptSerializer;
 
-public class JsonUtils {
-
-    public static final Gson GSON = new GsonBuilder()
+public class WiltonJson {
+    private static final Gson GSON = new GsonBuilder()
             .setPrettyPrinting()
             .registerTypeAdapter(RhinoScript.class, new RhinoScriptSerializer())
             .create();
 
-    public static final Type STRING_STRING_MAP_TYPE = new TypeToken<LinkedHashMap<String, String>>() {}.getType();
-    public static final Type STRING_LIST_TYPE = new TypeToken<ArrayList<String>>() {}.getType();
+    public static String wiltonToJson(Object src) {
+        return GSON.toJson(src);
+    }
 
+    public static JsonElement wiltonToJsonTree(Object src) {
+        return GSON.toJsonTree(src);
+    }
+
+    public static <T> T wiltonFromJson(String json, Class<T> classOfT) {
+        return GSON.fromJson(json, classOfT);
+    }
+
+    public static <T> T wiltonFromJson(String json, Type typeOfT) {
+        return GSON.fromJson(json, typeOfT);
+    }
 }

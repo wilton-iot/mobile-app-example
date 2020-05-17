@@ -18,12 +18,12 @@ package wilton.calls.thread;
 
 import wilton.Call;
 
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonFromJson;
 
 public class SleepMillis implements Call {
     @Override
     public String call(String data) throws Exception {
-        Options opts = GSON.fromJson(data, Options.class);
+        Options opts = wiltonFromJson(data, Options.class);
         Thread.sleep(opts.millis);
         return null;
     }

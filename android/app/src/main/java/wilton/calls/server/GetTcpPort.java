@@ -19,9 +19,9 @@ package wilton.calls.server;
 import wilton.calls.server.impl.Server;
 import wilton.calls.server.impl.ServerHolder;
 import wilton.Call;
-import wilton.WiltonException;
+import wilton.support.WiltonException;
 
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonToJson;
 
 public class GetTcpPort implements Call {
 
@@ -38,7 +38,7 @@ public class GetTcpPort implements Call {
             throw new WiltonException("Server is not running");
         }
         int port = server.getListeningPort();
-        return GSON.toJson(new Result(port));
+        return wiltonToJson(new Result(port));
     }
 
     static class Result {

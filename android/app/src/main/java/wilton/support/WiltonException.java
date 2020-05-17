@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package wilton;
+package wilton.support;
 
 public class WiltonException extends RuntimeException {
     public WiltonException(String message) {

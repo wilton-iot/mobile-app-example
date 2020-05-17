@@ -19,14 +19,14 @@ package wilton.calls.fs;
 import java.io.File;
 
 import wilton.Call;
-import wilton.WiltonException;
+import wilton.support.WiltonException;
 
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonFromJson;
 
 public class Unlink implements Call {
     @Override
     public String call(String data) throws Exception {
-        Options opts = GSON.fromJson(data, Options.class);
+        Options opts = wiltonFromJson(data, Options.class);
         boolean success = new File(opts.path).delete();
         if (!success) {
             throw new WiltonException("Cannot unlink file, path: [" + opts.path + "]");

@@ -29,13 +29,13 @@ define(function(require) {
         actions: {
             hideSplash: require("./common/actions/hideSplash"),
             openBackendSocket: require("./common/actions/openBackendSocket"),
+            sayHello: require("./common/actions/sayHello"),
             showMessage: require("./common/actions/showMessage"),
             subscribeBackButton: require("./common/actions/subscribeBackButton")
         },
 
         modules: {
-            broadcast: require("./modules/broadcast/broadcastStore"),
-            exit: require("./modules/exit/exitStore")
+            broadcast: require("./modules/broadcast/broadcastStore")
         },
 
         mutations: {

@@ -25,13 +25,13 @@ import mobile.example.R;
 import wilton.Call;
 
 import static mobile.example.MainActivity.activity;
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonFromJson;
 
 public class WebViewLoad implements Call {
 
     @Override
     public String call(String data) throws Exception {
-        final Options opts = GSON.fromJson(data, Options.class);
+        final Options opts = wiltonFromJson(data, Options.class);
         final CountDownLatch latch = new CountDownLatch(1);
         activity().runOnUiThread(new Runnable() {
             @Override

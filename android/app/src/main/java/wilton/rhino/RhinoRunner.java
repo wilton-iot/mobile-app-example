@@ -31,13 +31,13 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
 
-import mobile.example.Bridge;
 import mobile.example.MainActivity;
-import wilton.WiltonException;
+import wilton.support.WiltonException;
 
 import static org.apache.commons.io.IOUtils.closeQuietly;
+import static wilton.Bridge.wiltonBridge;
 import static wilton.rhino.RhinoLoader.rhinoLoadMethod;
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonToJson;
 
 public class RhinoRunner {
 
@@ -57,7 +57,7 @@ public class RhinoRunner {
             this.threadId = Thread.currentThread().getId();
 
             // bridge
-            Object wrappedOut = Context.javaToJS(new Bridge(), scope);
+            Object wrappedOut = Context.javaToJS(wiltonBridge(), scope);
             ScriptableObject.putProperty(scope, "WILTONMOBILE_androidBridge", wrappedOut);
 
             // rhino load func
@@ -65,7 +65,7 @@ public class RhinoRunner {
             scope.put("WILTON_load", scope, loadFunc);
             scope.setAttributes("WILTON_load", ScriptableObject.DONTENUM);
 
-        } catch (IOException e) {
+        } catch (Exception e) {
             throw new WiltonException("Rhino initialization error", e);
         }
     }
@@ -85,7 +85,7 @@ public class RhinoRunner {
                     " id: [" + tid + "], expected: [" + threadId + "]");
         }
         Function wiltonRun = (Function) scope.get("WILTON_run", scope);
-        String argsJson = GSON.toJson(script);
+        String argsJson = wiltonToJson(script);
         Object resObj = wiltonRun.call(context, scope, scope, new Object[] {argsJson});
         if (null != resObj && Undefined.instance != resObj) {
             return String.valueOf(resObj);

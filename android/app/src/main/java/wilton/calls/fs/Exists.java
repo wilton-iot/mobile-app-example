@@ -20,14 +20,15 @@ import java.io.File;
 
 import wilton.Call;
 
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonFromJson;
+import static wilton.support.WiltonJson.wiltonToJson;
 
 public class Exists implements Call {
     @Override
     public String call(String data) throws Exception {
-        Options opts = GSON.fromJson(data, Options.class);
+        Options opts = wiltonFromJson(data, Options.class);
         boolean exists = new File(opts.path).exists();
-        return GSON.toJson(new Result(exists));
+        return wiltonToJson(new Result(exists));
     }
 
     private static class Options {

@@ -42,7 +42,7 @@ define([
 
         methods: {
             sayHello: function() {
-                dispatch("showMessage", "Hello from MyApp!");
+                dispatch("sayHello", "MyApp");
             }
         }
     };

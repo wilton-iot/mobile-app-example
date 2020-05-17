@@ -21,16 +21,17 @@ import java.io.ByteArrayInputStream;
 import wilton.Call;
 
 import static wilton.calls.httpclient.SendStream.sendStream;
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonFromJson;
+import static wilton.support.WiltonJson.wiltonToJson;
 
 public class SendRequest implements Call {
     @Override
     public String call(String data) throws Exception {
-        Options opts = GSON.fromJson(data, Options.class);
+        Options opts = wiltonFromJson(data, Options.class);
         String reqdata = null != opts.getData() ? opts.getData() : "";
         byte[] bytes = reqdata.getBytes("UTF-8");
         ByteArrayInputStream bais = new ByteArrayInputStream(bytes);
         Result res = sendStream(opts, bais);
-        return GSON.toJson(res);
+        return wiltonToJson(res);
     }
 }

@@ -20,14 +20,15 @@ import java.io.File;
 
 import wilton.Call;
 
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonFromJson;
+import static wilton.support.WiltonJson.wiltonToJson;
 
 public class ReadDir implements Call {
     @Override
     public String call(String data) throws Exception {
-        Options opts = GSON.fromJson(data, Options.class);
+        Options opts = wiltonFromJson(data, Options.class);
         String[] list = new File(opts.path).list();
-        return GSON.toJson(list);
+        return wiltonToJson(list);
     }
 
     private static class Options {

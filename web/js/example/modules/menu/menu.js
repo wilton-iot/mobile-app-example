@@ -24,7 +24,6 @@ define([
     "example/components/list/List",
     // modules
     "example/modules/broadcast/broadcast",
-    "example/modules/exit/exit",
     "example/modules/hello/hello",
     // other
     "text!./menu.html"
@@ -32,7 +31,7 @@ define([
         module, // id
         commit, // common
         Header, List, // components
-        broadcast, exit, hello, // modules
+        broadcast, hello, // modules
         template // other
 ) {
     "use strict";
@@ -52,8 +51,7 @@ define([
             "example-header": new Header("Menu", "Choose a section of MyApp application from a list below"),
             "example-list": new List(modsListItems([
                 hello,
-                broadcast,
-                exit
+                broadcast
             ]))
         },
 

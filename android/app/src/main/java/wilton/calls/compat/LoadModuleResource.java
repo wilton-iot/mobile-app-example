@@ -19,12 +19,12 @@ package wilton.calls.compat;
 import java.io.File;
 
 import wilton.Call;
-import wilton.WiltonException;
+import wilton.support.WiltonException;
 
 import static org.apache.commons.codec.binary.Hex.encodeHex;
 import static org.apache.commons.io.FileUtils.readFileToByteArray;
 import static org.apache.commons.io.FileUtils.readFileToString;
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonFromJson;
 
 public class LoadModuleResource implements Call {
     private static final String ZIP_PROTO = "zip://";
@@ -33,7 +33,7 @@ public class LoadModuleResource implements Call {
 
     @Override
     public String call(String data) throws Exception {
-        Options opts = GSON.fromJson(data, Options.class);
+        Options opts = wiltonFromJson(data, Options.class);
         if (null == opts.url || opts.url.isEmpty()) {
             throw new WiltonException("Required parameter 'url' not specified");
         }

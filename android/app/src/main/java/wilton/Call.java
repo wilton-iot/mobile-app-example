@@ -18,5 +18,5 @@ package wilton;
 
 public interface Call {
 
-    public String call(final String data) throws Exception;
+    String call(final String data) throws Exception;
 }

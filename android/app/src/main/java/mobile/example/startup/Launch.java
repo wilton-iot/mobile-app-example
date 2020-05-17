@@ -21,7 +21,9 @@ import android.util.Log;
 
 import wilton.rhino.RhinoScript;
 
+import static mobile.example.AppCalls.appCalls;
 import static mobile.example.MainActivity.activity;
+import static wilton.Bridge.wiltonBridge;
 import static wilton.rhino.RhinoRunner.rhinoRunner;
 import static mobile.example.startup.Assets.unpackAssets;
 
@@ -30,6 +32,7 @@ public class Launch {
     public static void launchApplication() {
         try {
             unpackAssets();
+            wiltonBridge().addAppCalls(appCalls());
 //            RhinoScript testScript = new RhinoScript("wilton-mobile/test", null);
 //            rhinoRunner().run(testScript);
             RhinoScript script = new RhinoScript("example/index", "main",

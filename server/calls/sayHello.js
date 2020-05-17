@@ -14,24 +14,12 @@
  * limitations under the License.
  */
 
-package wilton.calls.fs;
+define([
+    "wilton-mobile/wiltoncall"
+], function(wiltoncall) {
+    "use strict";
 
-import java.io.File;
-
-import wilton.Call;
-
-import static org.apache.commons.io.FileUtils.deleteDirectory;
-import static wilton.support.WiltonJson.wiltonFromJson;
-
-public class RmDir implements Call {
-    @Override
-    public String call(String data) throws Exception {
-        Options opts = wiltonFromJson(data, Options.class);
-        deleteDirectory(new File(opts.path));
-        return null;
-    }
-
-    private static class Options {
-        String path;
-    }
-}
+    return function(message) {
+        wiltoncall("example_hello", message);
+    };
+});

@@ -23,12 +23,13 @@ import wilton.Call;
 
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import static wilton.calls.httpclient.SendStream.sendStream;
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonFromJson;
+import static wilton.support.WiltonJson.wiltonToJson;
 
 public class SendFile implements Call {
     @Override
     public String call(String data) throws Exception {
-        Options opts = GSON.fromJson(data, Options.class);
+        Options opts = wiltonFromJson(data, Options.class);
         String path = opts.getFilePath();
         if (!(null != path && path.length() > 0)) {
             throw new Error("Invalid 'filePath' specified: [" + path + "]");
@@ -39,7 +40,7 @@ public class SendFile implements Call {
             // buffered in sendStream
             fis = new FileInputStream(path);
             Result res = sendStream(opts, fis);
-            return GSON.toJson(res);
+            return wiltonToJson(res);
         } finally {
             closeQuietly(fis);
         }

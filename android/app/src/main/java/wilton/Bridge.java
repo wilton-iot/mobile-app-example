@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-package mobile.example;
+package wilton;
 
-import java.io.IOException;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 import wilton.calls.ui.HideSplash;
 import wilton.calls.ui.WebViewLoad;
@@ -40,17 +40,15 @@ import wilton.calls.server.StopServer;
 import wilton.calls.server.impl.ServerHolder;
 import wilton.calls.thread.SleepMillis;
 import wilton.calls.ui.ShowMessage;
-import wilton.Call;
-import wilton.WiltonException;
+import wilton.support.WiltonException;
 
 public class Bridge {
 
-    private final LinkedHashMap<String, Call> calls;
+    private static Bridge INSTANCE = new Bridge();
 
-    public Bridge() throws IOException {
-        this.calls = new LinkedHashMap<>();
+    private final LinkedHashMap<String, Call> calls = new LinkedHashMap<>();
 
-        // wilton
+    private Bridge() {
         // compat
         calls.put("get_wiltoncall_config", new GetWiltoncallConfig());
         calls.put("load_module_resource", new LoadModuleResource());
@@ -78,8 +76,20 @@ public class Bridge {
         calls.put("ui_show_message", new ShowMessage());
         calls.put("ui_webview_load", new WebViewLoad());
         calls.put("ui_splash_hide", new HideSplash());
+    }
 
-        // app
+    public static Bridge wiltonBridge() {
+        return INSTANCE;
+    }
+
+    // not synchronized, not exposed, only used from launcher
+    public void addAppCalls(Map<String, Call> appCalls) {
+        for(Map.Entry<String, Call> en : appCalls.entrySet()) {
+            Object overwritten = calls.put(en.getKey(), en.getValue());
+            if (null != overwritten) {
+                throw new WiltonException("Invalid duplicate call specified, name: [" + en.getKey() + "]");
+            }
+        }
     }
 
     public String wiltoncall(String name, String params) throws WiltonException {

@@ -23,7 +23,7 @@ import com.google.gson.JsonSerializer;
 import java.lang.reflect.Type;
 import java.util.LinkedHashMap;
 
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonToJsonTree;
 
 public class RhinoScriptSerializer implements JsonSerializer<RhinoScript> {
     @Override
@@ -36,6 +36,6 @@ public class RhinoScriptSerializer implements JsonSerializer<RhinoScript> {
         if (null != src.getArgs()) {
             params.put("args", src.getArgs());
         }
-        return GSON.toJsonTree(params);
+        return wiltonToJsonTree(params);
     }
 }

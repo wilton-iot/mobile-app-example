@@ -15,18 +15,18 @@
  */
 
 define([
-    "vue-require/websocket/backendcall",
-    "example/common/store/checkActionError"
-], function(backendcall, checkActionError) {
+    "vue-require/websocket/backendcall"
+], function(backendcall) {
     "use strict";
 
-    return function(context) {
+    return function(context, msg) {
         backendcall({
-            module: "example/android",
-            func: "killCurrentProcess"
+            module: "example/server/calls/sayHello",
+            args: [msg]
         }, function(err) {
-            if(checkActionError(err)) return;
+            if (err) {
+                console.error(err);
+            }
         });
     };
 });
-

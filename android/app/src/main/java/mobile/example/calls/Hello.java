@@ -14,15 +14,26 @@
  * limitations under the License.
  */
 
-define(function(require) {
-    "use strict";
+package mobile.example.calls;
 
-    return {
-        namespaced: true,
+import android.app.AlertDialog;
 
-        actions: {
-            exitApplication: require("./actions/exitApplication")
-        }
+import wilton.Call;
 
-    };
-});
+import static mobile.example.MainActivity.activity;
+
+public class Hello implements Call {
+    @Override
+    public String call(String data) throws Exception {
+        final String msg = "Hello " + data + "!";
+        activity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                new AlertDialog.Builder(activity())
+                        .setMessage(msg)
+                        .show();
+            }
+        });
+        return null;
+    }
+}

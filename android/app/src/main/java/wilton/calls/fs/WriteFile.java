@@ -23,12 +23,12 @@ import wilton.Call;
 import static org.apache.commons.codec.binary.Hex.decodeHex;
 import static org.apache.commons.io.FileUtils.writeByteArrayToFile;
 import static org.apache.commons.io.FileUtils.writeStringToFile;
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonFromJson;
 
 public class WriteFile implements Call {
     @Override
     public String call(String data) throws Exception {
-        Options opts = GSON.fromJson(data, Options.class);
+        Options opts = wiltonFromJson(data, Options.class);
         File file = new File(opts.path);
         if (opts.hex) {
             byte[] bytes = decodeHex(data.toCharArray());

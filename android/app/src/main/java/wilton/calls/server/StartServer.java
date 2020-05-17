@@ -24,9 +24,9 @@ import wilton.calls.server.impl.ServerHolder;
 import wilton.calls.server.impl.WebSocketCallbacks;
 import wilton.rhino.RhinoScript;
 import wilton.Call;
-import wilton.WiltonException;
+import wilton.support.WiltonException;
 
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonFromJson;
 
 public class StartServer implements Call {
 
@@ -38,7 +38,7 @@ public class StartServer implements Call {
 
     @Override
     public String call(String data) throws Exception {
-        Options opts = GSON.fromJson(data, Options.class);
+        Options opts = wiltonFromJson(data, Options.class);
         // single threaded usage here
         if (null != holder.get()) {
             throw new WiltonException("Server is already running");

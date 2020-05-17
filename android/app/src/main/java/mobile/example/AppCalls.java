@@ -14,24 +14,22 @@
  * limitations under the License.
  */
 
-package wilton.calls.fs;
+package mobile.example;
 
-import java.io.File;
+import java.util.LinkedHashMap;
+import java.util.Map;
 
+import mobile.example.calls.Hello;
 import wilton.Call;
 
-import static org.apache.commons.io.FileUtils.deleteDirectory;
-import static wilton.support.WiltonJson.wiltonFromJson;
+public class AppCalls {
 
-public class RmDir implements Call {
-    @Override
-    public String call(String data) throws Exception {
-        Options opts = wiltonFromJson(data, Options.class);
-        deleteDirectory(new File(opts.path));
-        return null;
-    }
+    public static Map<String, Call> appCalls() {
+        Map<String, Call> calls = new LinkedHashMap<>();
 
-    private static class Options {
-        String path;
+        // add application calls here to expose them to JS
+        calls.put("example_hello", new Hello());
+
+        return calls;
     }
 }

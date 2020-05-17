@@ -16,35 +16,92 @@
 
 package wilton.calls.compat;
 
+import com.google.gson.reflect.TypeToken;
+
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 
 import wilton.Call;
-import wilton.Config;
+import wilton.support.WiltonException;
 
 import static org.apache.commons.io.FileUtils.readFileToString;
 import static mobile.example.MainActivity.activity;
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonFromJson;
+import static wilton.support.WiltonJson.wiltonToJson;
 
 public class GetWiltoncallConfig implements Call {
 
     private final Config config;
 
-    public GetWiltoncallConfig() throws IOException {
-        File filesDir = activity().getExternalFilesDir(null);
-        String baseUrl = new File(filesDir, "stdlib").getAbsolutePath();
-        LinkedHashMap<String, String> paths = new LinkedHashMap<>();
-        File packagesFile = new File(filesDir, "stdlib/wilton-requirejs/wilton-packages.json");
-        String text = readFileToString(packagesFile, "UTF-8");
-        paths.put("example", new File(filesDir, "app").getAbsolutePath());
-        ArrayList<Config.RequireJS.Package> packages = GSON.fromJson(text, Config.RequireJS.PACKAGES_JSON_TYPE);
-        this.config = new Config(baseUrl, paths, packages);
+    public GetWiltoncallConfig() throws WiltonException {
+        try {
+            File filesDir = activity().getExternalFilesDir(null);
+            String baseUrl = new File(filesDir, "stdlib").getAbsolutePath();
+            LinkedHashMap<String, String> paths = new LinkedHashMap<>();
+            File packagesFile = new File(filesDir, "stdlib/wilton-requirejs/wilton-packages.json");
+            String text = readFileToString(packagesFile, "UTF-8");
+            paths.put("example", new File(filesDir, "app").getAbsolutePath());
+            ArrayList<Config.RequireJS.Package> packages = wiltonFromJson(text, Config.RequireJS.PACKAGES_JSON_TYPE);
+            this.config = new Config(baseUrl, paths, packages);
+        } catch (IOException e) {
+            throw new WiltonException("Error retrieving Wilton config", e);
+        }
     }
 
     public String call(final String data) throws Exception {
-        return GSON.toJson(this.config);
+        return wiltonToJson(this.config);
     }
 
+    private static class Config {
+        private static final String MOBILE_UNSUPPORTED = "MOBILE_UNSUPPORTED";
+
+        private String defaultScriptEngine = "rhino";
+        private String wiltonExecutable = MOBILE_UNSUPPORTED;
+        private String wiltonHome = MOBILE_UNSUPPORTED;
+        private String wiltonVersion = MOBILE_UNSUPPORTED;
+        private RequireJS requireJs;
+        private LinkedHashMap<String, String> environmentVariables = new LinkedHashMap<>();
+        private String compileTimeOS = "mobile";
+        private int debugConnectionPort = -1;
+        private boolean traceEnable = false;
+        private String cryptCall = "";
+
+        public Config() {
+        }
+
+        Config(String baseUrl, LinkedHashMap<String, String> paths, ArrayList<RequireJS.Package> packages) {
+            this.requireJs = new RequireJS(baseUrl, paths, packages);
+        }
+
+        static class RequireJS {
+            static final Type PACKAGES_JSON_TYPE = new TypeToken<ArrayList<Package>>() {}.getType();
+
+            private int waitSeconds = 0;
+            private boolean enforceDefine = true;
+            private boolean nodeIdCompat = true;
+            private String baseUrl;
+            private LinkedHashMap<String, String> paths;
+            private ArrayList<Package> packages;
+
+            RequireJS() {
+            }
+
+            RequireJS(String baseUrl, LinkedHashMap<String, String> paths, ArrayList<Package> packages) {
+                this.baseUrl = baseUrl;
+                this.paths = paths;
+                this.packages = packages;
+            }
+
+            static class Package {
+                private String name;
+                private String main;
+
+                public Package() {
+                }
+            }
+        }
+    }
 }

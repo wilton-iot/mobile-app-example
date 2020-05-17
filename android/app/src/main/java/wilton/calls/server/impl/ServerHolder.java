@@ -16,7 +16,7 @@
 
 package wilton.calls.server.impl;
 
-import wilton.WiltonException;
+import wilton.support.WiltonException;
 
 public class ServerHolder {
 

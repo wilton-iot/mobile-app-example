@@ -30,8 +30,7 @@ define(function(require) {
             { path: "/", redirect: "/hello" },
             { path: "/menu", component: require("./modules/menu/menu") },
             { path: "/hello", component: require("./modules/hello/hello") },
-            { path: "/broadcast", component: require("./modules/broadcast/broadcast") },
-            { path: "/exit", component: require("./modules/exit/exit") }
+            { path: "/broadcast", component: require("./modules/broadcast/broadcast") }
         ]
     });
 

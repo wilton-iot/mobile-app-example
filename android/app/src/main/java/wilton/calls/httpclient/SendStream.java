@@ -27,11 +27,11 @@ import java.net.URL;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import wilton.WiltonException;
+import wilton.support.WiltonException;
 
 import static org.apache.commons.io.IOUtils.closeQuietly;
 import static org.apache.commons.io.IOUtils.copyLarge;
-import static mobile.example.utils.JsonUtils.GSON;
+import static wilton.support.WiltonJson.wiltonToJson;
 
 class SendStream {
     static Result sendStream(Options opts, InputStream inputStream) throws Exception {
@@ -98,7 +98,7 @@ class SendStream {
                 if (tofile) {
                     dest = new BufferedOutputStream(new FileOutputStream(meta.getResponseDataFilePath()));
                     copyLarge(input, dest);
-                    resData = GSON.toJson(new ResponseDataFilePath(meta.getResponseDataFilePath()));
+                    resData = wiltonToJson(new ResponseDataFilePath(meta.getResponseDataFilePath()));
                 } else {
                     dest = new ByteArrayOutputStream();
                     ByteArrayOutputStream baos = (ByteArrayOutputStream) dest;

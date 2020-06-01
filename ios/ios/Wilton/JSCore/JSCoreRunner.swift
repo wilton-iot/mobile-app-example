@@ -20,11 +20,11 @@ class JSCoreRunner {
             ctx.exceptionHandler = jsExceptionHandler
             ctx.setObject(wiltonBridge(), forKeyedSubscript: "WILTONMOBILE_iosBridge" as (NSCopying & NSObjectProtocol))
         } catch {
-            throw WiltonException("Rhino initialization error, message: \(error)");
+            throw WiltonException("JSCorec context initialization error, message: \(error)");
         }
     }
     
-    public func load(_ path: String) {
+    func load(_ path: String) {
         let relPath = wiltonRelPath(path)
         let infoHandler = ctx.exceptionHandler
         ctx.exceptionHandler = { (_: JSContext?, val: JSValue?) -> Void in
@@ -38,7 +38,7 @@ class JSCoreRunner {
         }
     }
 
-    public func run(_ script: JSCoreScript) throws -> String {
+    func run(_ script: JSCoreScript) throws -> String {
         guard let _ = DispatchQueue.getSpecific(key: jscoreDispatchSpecificKey()) else {
             throw WiltonException("Attempt to run JS on invalid queue")
         }
@@ -53,6 +53,14 @@ class JSCoreRunner {
             }
         }
         return ""
+    }
+    
+    fileprivate func runInitScript() throws {
+        let path = wiltonFilesDir.appendingPathComponent("init.js").absoluteString
+        let err = runScript(path)
+        if !err.isEmpty {
+            throw WiltonException("JSCore initialization error, message: \(err)");
+        }
     }
 
     private func runScript(_ path: String) -> String {
@@ -69,11 +77,6 @@ class JSCoreRunner {
             return "Error evaluating script, path: [\(label)], error: [\(error)]"
         }
     }
-
-    fileprivate static func runInitScript() throws {
-        let path = wiltonFilesDir.appendingPathComponent("init.js").absoluteString
-        _ = INSTANCE.runScript(path)
-    }
     
     private func jsExceptionHandler(_ ctx: JSContext?, _ exc: JSValue?) -> Void {
         if let exc = exc {
@@ -86,7 +89,7 @@ func jscoreRunner() -> JSCoreRunner {
     guard let inst = JSCoreRunner.INSTANCE else {
         do {
             try JSCoreRunner.INSTANCE = JSCoreRunner()
-            try JSCoreRunner.runInitScript()
+            try JSCoreRunner.INSTANCE.runInitScript()
         } catch {
             fatalError("Failed to initialize JSCoreRunner: \(error)")
         }

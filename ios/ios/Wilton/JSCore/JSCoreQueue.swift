@@ -20,13 +20,13 @@ class JSCoreQueue {
 }
 
 func runOnJsThread(_ fun: @escaping () -> ()) {
-    JSCoreQueue.QUEUE.async {
+    JSCoreQueue.QUEUE.async(flags: .barrier) {
         fun()
     }
 }
 
 func runOnJsThread(_ script: JSCoreScript) {
-    JSCoreQueue.QUEUE.async {
+    JSCoreQueue.QUEUE.async(flags: .barrier) {
         do {
             _ = try jscoreRunner().run(script)
         } catch {

@@ -55,6 +55,11 @@ class JSCoreRunner {
         return ""
     }
     
+    func setException(_ exc: String) {
+        // note: exception chaining may be necessary here
+        self.ctx.exception = JSValue(object: exc, in: self.ctx)
+    }
+    
     fileprivate func runInitScript() throws {
         let path = wiltonFilesDir.appendingPathComponent("init.js").absoluteString
         let err = runScript(path)

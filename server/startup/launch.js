@@ -76,6 +76,14 @@ define([
             defaultValue: false,
             help: "Build Android APK and deploy to connected device"
         });
+       
+        // ios
+        ap.addArgument(["--ios-bundle-prepare"], {
+            action: "storeTrue",
+            dest: "iosBundlePrepare",
+            defaultValue: false,
+            help: "Prepare resources for iOS bundle"
+        });
 
         // other
         ap.addArgument(["--check-sanity"], {
@@ -131,6 +139,8 @@ define([
             return require(["example/bundle/android/createApk"], function(fun) { fun(conf); });
         } else if (args.androidApkDeploy) {
             return require(["example/bundle/android/deployApk"], function(fun) { fun(conf); });
+        } else if (args.iosBundlePrepare) {
+            return require(["example/bundle/ios/prepareBundle"], function(fun) { fun(conf); })
         } else {
             return require(["example/server/startup/launchDev"], function(fun) { fun(conf); });
         }

@@ -10,7 +10,7 @@ import Foundation
 
 private let HEX_SYMBOLS = "0123456789abcdef".unicodeScalars.map { $0 }
 
-let wiltonFilesDir: URL = Bundle.main.url(forResource: "index", withExtension: "js", subdirectory: "app")!.deletingLastPathComponent();
+let wiltonFilesDir: URL = Bundle.main.url(forResource: "index", withExtension: "js", subdirectory: "app")!.deletingLastPathComponent().deletingLastPathComponent()
 
 let wiltonAppDir: URL = wiltonFilesDir.appendingPathComponent("app")
 
@@ -25,7 +25,7 @@ func wiltonRelPath(_ path: String) -> String {
 
 func readFileToByteArray(_ file: URL) throws -> [UInt8] {
     guard let data = NSData(contentsOf: file) else {
-        throw WiltonException("Error reading file, path: [\(file)]")
+        throw WiltonException("WiltonIOUtils: Error reading file, path: [\(file)]")
     }
     var buffer = [UInt8](repeating: 0, count: data.length)
     data.getBytes(&buffer, length: data.length)

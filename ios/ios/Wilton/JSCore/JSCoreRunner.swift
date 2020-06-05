@@ -20,7 +20,7 @@ class JSCoreRunner {
             ctx.exceptionHandler = jsExceptionHandler
             ctx.setObject(wiltonBridge(), forKeyedSubscript: "WILTONMOBILE_iosBridge" as (NSCopying & NSObjectProtocol))
         } catch {
-            throw WiltonException("JSCorec context initialization error, message: \(error)");
+            throw WiltonException("JSCoreRunner: Context initialization error, message: \(error)");
         }
     }
     
@@ -40,13 +40,18 @@ class JSCoreRunner {
 
     func run(_ script: JSCoreScript) throws -> String {
         guard let _ = DispatchQueue.getSpecific(key: jscoreDispatchSpecificKey()) else {
-            throw WiltonException("Attempt to run JS on invalid queue")
+            throw WiltonException("JSCoreRunner: Attempt to run JS on an invalid queue")
         }
         let args = wiltonToJson(script)
         ctx.setObject(args, forKeyedSubscript: "WILTON_runArg" as (NSCopying & NSObjectProtocol))
         let code = "WILTON_run(WILTON_runArg)"
-        let res = ctx.evaluateScript(code)
+        let res = ctx.evaluateScript(code, withSourceURL: URL(string: "WILTON_run"))
         ctx.setObject(nil, forKeyedSubscript: "WILTON_runArg" as (NSCopying & NSObjectProtocol))
+        if let exc = ctx.exception {
+            let err = stringifyException(exc)
+            ctx.exception = nil
+            throw WiltonException("JSCoreRunner: \(args)\n\(err)")
+        }
         if let val = res {
             if val.isString {
                 return val.toString()
@@ -64,7 +69,7 @@ class JSCoreRunner {
         let path = wiltonFilesDir.appendingPathComponent("init.js").absoluteString
         let err = runScript(path)
         if !err.isEmpty {
-            throw WiltonException("JSCore initialization error, message: \(err)");
+            throw WiltonException("JSCoreRunner: Initialization error, message: \(err)");
         }
     }
 
@@ -85,8 +90,17 @@ class JSCoreRunner {
     
     private func jsExceptionHandler(_ ctx: JSContext?, _ exc: JSValue?) -> Void {
         if let exc = exc {
-            print("JS Error, msg: [\(exc)], details: [\(exc.toDictionary()?.description ?? "")]")
+            self.ctx.exception = exc
         }
+    }
+    
+    private func stringifyException(_ exc: JSValue) -> String {
+        let dict = exc.toDictionary() ?? [AnyHashable: Any]()
+        let file = dict["sourceURL"] ?? "[]"
+        let line = dict["line"] ?? "-1"
+        let column = dict["column"] ?? "-1"
+        let stack = dict["stack"] ?? ""
+        return "JS Error: \(exc): \(file):\(line):\(column) \n\(stack)"
     }
 }
 

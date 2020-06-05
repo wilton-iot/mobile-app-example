@@ -24,7 +24,7 @@ func wiltonToJson<T : Encodable>(_ src: T) -> String {
         let json = try WiltonJson.ENCODER.encode(src)
         return String(data: json, encoding: .utf8) ?? "{}"
     } catch {
-        print("JSON encoding error, message: [\(error)]")
+        print("WiltonJson: Encoding error, message: [\(error)]")
         return "{}";
     }
 }
@@ -34,6 +34,6 @@ func wiltonFromJson<T>(_ str: String, _ type: T.Type) throws -> T where T : Deco
         let data = str.data(using: .utf8)!
         return try WiltonJson.DECODER.decode(type, from: data)
     } catch {
-        throw WiltonException("JSON decoding error, message: [\(error)], input: [\(str)]")
+        throw WiltonException("WiltonJson: Decoding error, message: [\(error)], input: [\(str)]")
     }
 }

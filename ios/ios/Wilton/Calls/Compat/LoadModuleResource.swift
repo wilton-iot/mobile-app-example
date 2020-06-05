@@ -16,10 +16,10 @@ class LoadModuleResource : Call {
     func call(_ data: String) throws -> String {
         let opts = try wiltonFromJson(data, Options.self)
         guard let url = opts.url else {
-            throw WiltonException("Required parameter 'url' not specified")
+            throw WiltonException("LoadModuleResource: Required parameter 'url' not specified")
         }
         if (url.hasPrefix(ZIP_PROTO)) {
-            throw WiltonException("Invalid protocol specified:" +
+            throw WiltonException("LoadModuleResource: Invalid protocol specified:" +
                     " '\(ZIP_PROTO)' URLs are not supported in wilton-mobile," +
                     " url: [\(url)]");
         }

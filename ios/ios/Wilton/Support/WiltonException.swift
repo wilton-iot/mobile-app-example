@@ -8,10 +8,10 @@
 
 import Foundation
 
-class WiltonException: Error {
-    private let message: String
+class WiltonException: Error, CustomStringConvertible {
+    var description: String
     
     init(_ message: String) {
-        self.message = message
+        self.description = "WiltonException: " + message
     }
 }

@@ -14,22 +14,16 @@
  * limitations under the License.
  */
 
-function print(msg) {
-    WILTONMOBILE_iosBridge.print_(String(msg));
-}
+define([
+    "module",
+    "wilton-mobile/Logger",
+    "./startApp"
+], function(module, Logger, startApp) {
+    "use strict";
+    var logger = new Logger(module.id);
 
-WILTONMOBILE_isIOS = true;
+    return function(conf){
+        return startApp(conf);
+    };
 
-function WILTON_wiltoncall(name, params) {
-    return WILTONMOBILE_iosBridge.wiltoncall(String(name), String(params));
-}
-
-function WILTON_load(path) {
-    return WILTONMOBILE_iosBridge.loadScript(path);
-}
-
-(function(){
-    // init
-    var filesDir = WILTON_wiltoncall("fs_files_dir");
-    WILTON_load(filesDir + "stdlib/wilton-requirejs/wilton-require.js");
-}());
+});

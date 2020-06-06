@@ -27,10 +27,10 @@ class Bridge: NSObject, BridgeExport {
             // compat
             calls["get_wiltoncall_config"] = try GetWiltoncallConfig()
             calls["load_module_resource"] = LoadModuleResource()
-            /*
             // fs
-            calls.put("fs_exists", new Exists());
-            calls.put("fs_files_dir", new FilesDir());
+            //calls.put("fs_exists", new Exists());
+            calls["fs_files_dir"] = FilesDir();
+            /*
             calls.put("fs_mkdir", new MkDir());
             calls.put("fs_readdir", new ReadDir());
             calls.put("fs_read_file", new ReadFile());

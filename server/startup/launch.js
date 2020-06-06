@@ -24,7 +24,8 @@ define([
     "../common/loadConfig",
     // local
     "./createDirs",
-    "./launchAndroid"
+    "./launchAndroid",
+    "./launchIOS"
 ], function(
         module, argparse, Logger, // lib
         appdir, loadConfig, // common
@@ -78,6 +79,12 @@ define([
         });
        
         // ios
+        ap.addArgument(["--ios-launch"], {
+           action: "storeTrue",
+           dest: "iosLaunch",
+           defaultValue: false,
+           help: "Launch iOS application"
+        });
         ap.addArgument(["--ios-bundle-prepare"], {
             action: "storeTrue",
             dest: "iosBundlePrepare",
@@ -139,6 +146,8 @@ define([
             return require(["example/bundle/android/createApk"], function(fun) { fun(conf); });
         } else if (args.androidApkDeploy) {
             return require(["example/bundle/android/deployApk"], function(fun) { fun(conf); });
+        } else if (args.iosLaunch) {
+            return launchIOS(conf);
         } else if (args.iosBundlePrepare) {
             return require(["example/bundle/ios/prepareBundle"], function(fun) { fun(conf); })
         } else {

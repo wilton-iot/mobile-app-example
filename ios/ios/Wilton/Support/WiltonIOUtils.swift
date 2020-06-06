@@ -15,12 +15,12 @@ let wiltonFilesDir: URL = Bundle.main.url(forResource: "index", withExtension: "
 let wiltonAppDir: URL = wiltonFilesDir.appendingPathComponent("app")
 
 func wiltonRelPath(_ path: String) -> String {
-     let dir = wiltonFilesDir.absoluteString
-     if !path.hasPrefix(dir) {
-         return path;
-     }
-     let range = path.index(after: dir.endIndex) ..< path.endIndex
-     return String(path[range])
+    let dir = wiltonFilesDir.absoluteString
+    if !path.hasPrefix(dir) {
+        return path;
+    }
+    let range = dir.endIndex ..< path.endIndex
+    return String(path[range])
  }
 
 func readFileToByteArray(_ file: URL) throws -> [UInt8] {

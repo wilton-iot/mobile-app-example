@@ -69,7 +69,7 @@ class JSCoreRunner {
         let path = wiltonFilesDir.appendingPathComponent("init.js").absoluteString
         let err = runScript(path)
         if !err.isEmpty {
-            throw WiltonException("JSCoreRunner: Initialization error, message: \(err)");
+            throw WiltonException("JSCoreRunner: Initialization error, message: \(err)")
         }
     }
 
@@ -79,9 +79,14 @@ class JSCoreRunner {
             let rpath = URL(string: path)!.relativePath
             let code = try String(contentsOfFile: rpath, encoding: String.Encoding.utf8)
             let opt = ctx.evaluateScript(code, withSourceURL: URL(string: label)!)
-            if nil == opt {
-                return "Error evaluating script, path: [\(label)]"
+            if let exc = ctx.exception {
+                let err = stringifyException(exc)
+                ctx.exception = nil
+                throw WiltonException("JSCoreRunner, path: [\(label)]: \(err)")
             }
+            //if nil == opt {
+            //    return "Error evaluating script, path: [\(label)]"
+            //}
             return ""
         } catch {
             return "Error evaluating script, path: [\(label)], error: [\(error)]"

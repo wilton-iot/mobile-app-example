@@ -29,7 +29,7 @@ define([
 ], function(
         module, argparse, Logger, // lib
         appdir, loadConfig, // common
-        createDirs, launchAndroid // local
+        createDirs, launchAndroid, launchIOS // local
 ) {
     "use strict";
     var logger = new Logger(module.id);

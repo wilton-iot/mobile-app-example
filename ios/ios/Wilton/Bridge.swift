@@ -28,31 +28,32 @@ class Bridge: NSObject, BridgeExport {
             calls["get_wiltoncall_config"] = try GetWiltoncallConfig()
             calls["load_module_resource"] = LoadModuleResource()
             // fs
-            //calls.put("fs_exists", new Exists());
-            calls["fs_files_dir"] = FilesDir();
+            calls["fs_exists"] = Exists()
+            calls["fs_files_dir"] = FilesDir()
+            calls["fs_mkdir"] = MkDir()
+            //calls.put("fs_readdir", new ReadDir());
+            
+            calls["fs_read_file"] = ReadFile()
             /*
-            calls.put("fs_mkdir", new MkDir());
-            calls.put("fs_readdir", new ReadDir());
-            calls.put("fs_read_file", new ReadFile());
             calls.put("fs_rmdir", new RmDir());
             calls.put("fs_unlink", new Unlink());
             calls.put("fs_write_file", new WriteFile());
             // httpclient
             calls.put("httpclient_send_request", new SendRequest());
             calls.put("httpclient_send_file", new SendFile());
+             */
             // server
-            ServerHolder holder = new ServerHolder();
-            calls.put("server_start", new StartServer(holder));
-            calls.put("server_stop", new StopServer(holder));
-            calls.put("server_get_tcp_port", new GetTcpPort(holder));
-            calls.put("server_broadcast_web_socket", new BroadcastWebSocket(holder));
+            let holder = ServerHolder()
+            calls["server_start"] = StartServer(holder)
+            //calls.put("server_stop", new StopServer(holder));
+            calls["server_get_tcp_port"] = GetTcpPort(holder)
+            //calls.put("server_broadcast_web_socket", new BroadcastWebSocket(holder));
             // thread
-            calls.put("thread_sleep_millis", new SleepMillis());
+            //calls.put("thread_sleep_millis", new SleepMillis());
             // ui
-            calls.put("ui_show_message", new ShowMessage());
-            calls.put("ui_webview_load", new WebViewLoad());
-            calls.put("ui_splash_hide", new HideSplash());
-            */
+            //calls.put("ui_show_message", new ShowMessage());
+            calls["ui_webview_load"] = WebViewLoad()
+            //calls.put("ui_splash_hide", new HideSplash());
         } catch {
             fatalError("JS Bridge initialization error, message: [\(error)]")
         }
@@ -84,8 +85,11 @@ class Bridge: NSObject, BridgeExport {
         do {
             return try call.call(params);
         } catch {
-            let range = params.index(params.startIndex, offsetBy: 1024)
-            let dataLog = params.count > 1024 ? String(params.prefix(upTo: range)) : params
+            var dataLog = params
+            if params.count > 1024 {
+                let range = params.index(params.startIndex, offsetBy: 1024)
+                dataLog = String(params.prefix(upTo: range))
+            }
             jscoreRunner().setException("\n'wiltoncall' error for name: [\(name)]," +
                     " data: [\(dataLog)], message: [\(error)]")
             return ""

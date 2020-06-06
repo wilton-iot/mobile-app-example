@@ -23,7 +23,7 @@ class GetWiltoncallConfig : Call {
             let packages = try wiltonFromJson(text, [Config.RequireJS.Package].self)
             self.config = Config(baseUrl.absoluteString, paths, packages)
         } catch {
-            throw WiltonException("GetWiltoncallConfig: Error retrieving Wilton config, message: [\(error)]");
+            throw WiltonException("Compat/GetWiltoncallConfig: Error retrieving Wilton config, message: [\(error)]");
         }
     }
 

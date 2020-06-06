@@ -8,24 +8,21 @@
 
 import Foundation
 
-fileprivate let ZIP_PROTO = "zip://"
-fileprivate let FILE_PROTO = "file://"
-
 class LoadModuleResource : Call {
 
     func call(_ data: String) throws -> String {
         let opts = try wiltonFromJson(data, Options.self)
         guard let url = opts.url else {
-            throw WiltonException("LoadModuleResource: Required parameter 'url' not specified")
+            throw WiltonException("Compat/LoadModuleResource: Required parameter 'url' not specified")
         }
-        if (url.hasPrefix(ZIP_PROTO)) {
-            throw WiltonException("LoadModuleResource: Invalid protocol specified:" +
-                    " '\(ZIP_PROTO)' URLs are not supported in wilton-mobile," +
+        if (url.hasPrefix(WILTON_ZIP_PROTO)) {
+            throw WiltonException("Compat/LoadModuleResource: Invalid protocol specified:" +
+                    " '\(WILTON_ZIP_PROTO)' URLs are not supported in wilton-mobile," +
                     " url: [\(url)]");
         }
         var path = url
-        if (path.hasPrefix(FILE_PROTO)) {
-            path = String(path[path.index(after: FILE_PROTO.endIndex) ..< path.endIndex])
+        if (!path.hasPrefix(WILTON_FILE_PROTO)) {
+            path = WILTON_FILE_PROTO + path
         }
         let file = URL(string: path)!
         if (opts.hex) {

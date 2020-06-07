@@ -15,7 +15,7 @@ class ReadFile : Call {
             throw WiltonException("Fs/ReadFile: Required parameter 'path' not specified")
         }
         if (opts.hex) {
-            let bytes = try readFileToByteArray(path);
+            let bytes = try readFileToBytes(path);
             return encodeHex(bytes);
         } else {
             return try readFileToString(path);

@@ -31,13 +31,12 @@ class Bridge: NSObject, BridgeExport {
             calls["fs_exists"] = Exists()
             calls["fs_files_dir"] = FilesDir()
             calls["fs_mkdir"] = MkDir()
-            //calls.put("fs_readdir", new ReadDir());
-            
+            calls["fs_readdir"] = ReadDir()
             calls["fs_read_file"] = ReadFile()
+            calls["fs_rmdir"] = RmDir()
+            calls["fs_unlink"] = Unlink()
+            calls["fs_write_file"] = WriteFile()
             /*
-            calls.put("fs_rmdir", new RmDir());
-            calls.put("fs_unlink", new Unlink());
-            calls.put("fs_write_file", new WriteFile());
             // httpclient
             calls.put("httpclient_send_request", new SendRequest());
             calls.put("httpclient_send_file", new SendFile());

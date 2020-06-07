@@ -21,7 +21,7 @@ class LoadModuleResource : Call {
                     " url: [\(path)]");
         }
         if (opts.hex) {
-            let bytes = try readFileToByteArray(path);
+            let bytes = try readFileToBytes(path);
             return encodeHex(bytes);
         } else {
             return try readFileToString(path);

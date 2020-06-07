@@ -26,17 +26,22 @@ func wiltonRelPath(_ path: String) -> String {
     return String(path[range])
 }
 
-func readFileToByteArray(_ file: URL) throws -> [UInt8] {
-    guard let data = NSData(contentsOf: file) else {
-        throw WiltonException("WiltonIOUtils: Error reading file, path: [\(file.absoluteString)]")
+func readFileToByteArray(_ path: String) throws -> [UInt8] {
+    var fullPath = path
+    if !fullPath.hasPrefix(WILTON_FILE_PROTO) {
+        fullPath = WILTON_FILE_PROTO + path
+    }
+    let url = URL(string: fullPath)!
+    guard let data = NSData(contentsOf: url) else {
+        throw WiltonException("WiltonIOUtils: Error reading file, path: [\(path)]")
     }
     var buffer = [UInt8](repeating: 0, count: data.length)
     data.getBytes(&buffer, length: data.length)
     return buffer
 }
 
-func readFileToString(_ file: URL) throws -> String {
-    let data = try readFileToByteArray(file)
+func readFileToString(_ path: String) throws -> String {
+    let data = try readFileToByteArray(path)
     return String(bytes: data, encoding: .utf8)!
 }
 

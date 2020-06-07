@@ -11,14 +11,12 @@ import Foundation
 class MkDir : Call {
     func call(_ data: String) throws -> String {
         let opts = try wiltonFromJson(data, Options.self)
-        guard var path = opts.path else {
+        guard let path = opts.path else {
             throw WiltonException("Fs/MkDir: Required parameter 'path' not specified")
         }
-        if !path.hasPrefix(WILTON_FILE_PROTO) {
-            path = URL(string: path)!.relativePath
-        }
         do {
-            try FileManager.default.createDirectory(atPath: path, withIntermediateDirectories: false, attributes: nil)
+            let url = URL(string: path) ?? URL(string: "INVALID_PATH")!
+            try FileManager.default.createDirectory(atPath: url.relativePath, withIntermediateDirectories: false, attributes: nil)
             return ""
         } catch {
             throw WiltonException("Fs/MkDir: Error creating directory, path: [\(path)], message: [\(error)]")

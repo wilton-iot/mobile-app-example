@@ -17,8 +17,8 @@ class GetWiltoncallConfig : Call {
         do {
             let baseUrl = wiltonFilesDir.appendingPathComponent("stdlib", isDirectory: true)
             var paths = [String: String]()
-            let packagesFile = baseUrl.appendingPathComponent("wilton-requirejs/wilton-packages.json")
-            let text = try readFileToString(packagesFile)
+            let url = baseUrl.appendingPathComponent("wilton-requirejs/wilton-packages.json")
+            let text = try readFileToString(url.relativePath)
             paths["example"] = wiltonFilesDir.appendingPathComponent("app").absoluteString
             let packages = try wiltonFromJson(text, [Config.RequireJS.Package].self)
             self.config = Config(baseUrl.absoluteString, paths, packages)

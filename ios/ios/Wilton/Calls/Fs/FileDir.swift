@@ -10,6 +10,6 @@ import Foundation
 
 class FilesDir : Call {
     func call(_ data: String) throws -> String {
-        return wiltonFilesDir.absoluteString
+        return wiltonFilesDir.relativePath + "/"
     }
 }

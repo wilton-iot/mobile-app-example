@@ -78,7 +78,7 @@ class JSCoreRunner {
         do {
             let rpath = URL(string: path)!.relativePath
             let code = try String(contentsOfFile: rpath, encoding: String.Encoding.utf8)
-            let opt = ctx.evaluateScript(code, withSourceURL: URL(string: label)!)
+            let opt = ctx.evaluateScript(code, withSourceURL: URL(string: label))
             if let exc = ctx.exception {
                 let err = stringifyException(exc)
                 ctx.exception = nil

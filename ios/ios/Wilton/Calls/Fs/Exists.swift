@@ -11,13 +11,11 @@ import Foundation
 class Exists : Call {
     func call(_ data: String) throws -> String {
         let opts = try wiltonFromJson(data, Options.self)
-        guard var path = opts.path else {
+        guard let path = opts.path else {
             throw WiltonException("Fs/Exists: Required parameter 'path' not specified")
         }
-        if !path.hasPrefix(WILTON_FILE_PROTO) {
-            path = WILTON_FILE_PROTO + path
-        }
-        let exists = FileManager.default.fileExists(atPath: path)
+        let url = URL(string: path) ?? URL(string: "INVALID_PATH")!
+        let exists = FileManager.default.fileExists(atPath: url.relativePath)
         let json = wiltonToJson(Result(exists))
         return json
     }

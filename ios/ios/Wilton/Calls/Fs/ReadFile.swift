@@ -11,18 +11,14 @@ import Foundation
 class ReadFile : Call {
     func call(_ data: String) throws -> String {
         let opts = try wiltonFromJson(data, Options.self)
-        guard var path = opts.path else {
+        guard let path = opts.path else {
             throw WiltonException("Fs/ReadFile: Required parameter 'path' not specified")
         }
-        if !path.hasPrefix(WILTON_FILE_PROTO) {
-            path = WILTON_FILE_PROTO + path
-        }
-        let file = URL(string: path)!
         if (opts.hex) {
-            let bytes = try readFileToByteArray(file);
+            let bytes = try readFileToByteArray(path);
             return encodeHex(bytes);
         } else {
-            return try readFileToString(file);
+            return try readFileToString(path);
         }
     }
     

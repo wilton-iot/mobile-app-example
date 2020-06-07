@@ -13,7 +13,7 @@ class JSCoreScript : Codable {
     private var func_: String?
     private var args: Array<String>?
     
-    init(_ module: String, _ func_: String?, _ args: [String]) {
+    init(_ module: String, _ func_: String?, _ args: [String]?) {
         self.module = module
         self.func_ = func_
         self.args = args

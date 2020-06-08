@@ -16,14 +16,14 @@ class Server {
     private let loopGroup: MultiThreadedEventLoopGroup
     private let wsRegistry: WebSocketRegistry
     private let serverChannel: Channel
-    private var running = true
+    private var running: WiltonBoolRef = WiltonBoolRef(true)
     
     init(_ hostname: String, _ port: Int, _ droots: [DocumentRoot],
          _ callbacks: WebSocketCallbacks, _ httpPostHandler: JSCoreScript?) throws {
         
         loopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
         wsRegistry = WebSocketRegistry(mutex)
-        let upgrader = createUpgrader(wsRegistry)
+        let upgrader = createUpgrader(mutex, callbacks, wsRegistry, running)
         let bootstrap = ServerBootstrap(group: loopGroup)
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
@@ -46,7 +46,7 @@ class Server {
     
     func broadcastWebSocket(_ message: String) {
         withExtendedLifetime(WiltonDispatchGuard(mutex)) {
-            if !self.running {
+            if !self.running.get() {
                 return
             }
             for chan in wsRegistry.channels() {
@@ -62,8 +62,8 @@ class Server {
     func stop() {
         // switch state to stopped
         let canStop = withExtendedLifetime(WiltonDispatchGuard(mutex)) { () -> Bool in
-            let res = self.running
-            running = false
+            let res = self.running.get()
+            running.set(false)
             return res
         }
         
@@ -88,23 +88,24 @@ class Server {
     }
 }
 
-func sendWebSocket(_ chan: Channel, _ msg: String) {
-    if !chan.isActive {
+func sendWebSocket(_ channel: Channel, _ msg: String) {
+    if !channel.isActive {
         return
     }
-    var buffer = chan.allocator.buffer(capacity: msg.count)
+    var buffer = channel.allocator.buffer(capacity: msg.count)
     buffer.writeString(msg)
     let frame = WebSocketFrame(fin: true, opcode: .text, data: buffer)
     // channel is thread-safe
-    _ = chan.writeAndFlush(frame)
+    _ = channel.writeAndFlush(frame)
 }
 
-fileprivate func createUpgrader(_ wsRegistry: WebSocketRegistry) -> NIOWebSocketServerUpgrader {
+fileprivate func createUpgrader(_ mutex: DispatchSemaphore, _ callbacks: WebSocketCallbacks,
+                                _ wsRegistry: WebSocketRegistry, _ running: WiltonBoolRef) -> NIOWebSocketServerUpgrader {
     return NIOWebSocketServerUpgrader(shouldUpgrade: { (channel: Channel, head: HTTPRequestHead) in
         channel.eventLoop.makeSucceededFuture(HTTPHeaders())
     }, upgradePipelineHandler: { (channel: Channel, _: HTTPRequestHead) in
-        wsRegistry.addChannel(channel)
-        return channel.pipeline.addHandler(WebSocketHandler(wsRegistry))
+        let handler = WebSocketHandler(mutex, callbacks, wsRegistry, running, channel)
+        return channel.pipeline.addHandler(handler)
     })
 }
 

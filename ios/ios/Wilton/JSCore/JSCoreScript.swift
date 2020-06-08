@@ -9,9 +9,9 @@
 import Foundation
 
 class JSCoreScript : Codable {
-    private var module: String
-    private var func_: String?
-    private var args: Array<String>?
+    var module: String
+    var func_: String?
+    var args: Array<String>?
     
     init(_ module: String, _ func_: String?, _ args: [String]?) {
         self.module = module

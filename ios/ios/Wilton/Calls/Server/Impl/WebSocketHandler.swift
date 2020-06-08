@@ -13,24 +13,33 @@ import NIOWebSocket
 class WebSocketHandler: ChannelInboundHandler {
     typealias InboundIn = WebSocketFrame
     typealias OutboundOut = WebSocketFrame
-    private let wsRegistry: WebSocketRegistry
     
-    init(_ wsRegistry: WebSocketRegistry) {
+    private let mutex: DispatchSemaphore
+    private let callbacks: WebSocketCallbacks
+    private let wsRegistry: WebSocketRegistry
+    private let serverRunning: WiltonBoolRef
+    
+    init(_ mutex: DispatchSemaphore, _ callbacks: WebSocketCallbacks, _ wsRegistry: WebSocketRegistry,
+         _ serverRunning: WiltonBoolRef, _ channel: Channel) {
+        self.mutex = mutex
+        self.callbacks = callbacks
         self.wsRegistry = wsRegistry
+        self.serverRunning = serverRunning
+        
+        wsRegistry.addChannel(channel)
+        onOpen(channel)
     }
         
     public func channelRead(context: ChannelHandlerContext, data: NIOAny) {
-        let frame = self.unwrapInboundIn(data)
+        let frame = unwrapInboundIn(data)
             
         switch frame.opcode {
         case .connectionClose:
-            self.receivedClose(context: context, frame: frame)
+            onClose(context, context.channel, frame)
         case .ping:
-            self.pong(context: context, frame: frame)
+            onPing(context.channel, frame)
         case .text:
-            var data = frame.unmaskedData
-            let text = data.readString(length: data.readableBytes) ?? "{}"
-            handleCallAsync(context: context, req: text)
+            onMessage(context.channel, frame)
         case .binary, .continuation, .pong:
             // ignore these frames
             break
@@ -44,48 +53,61 @@ class WebSocketHandler: ChannelInboundHandler {
         wsRegistry.removeChannel(context.channel)
     }
     
-    private func handleCallAsync(context: ChannelHandlerContext, req: String) {
-        //print("--- WS incoming req: ", req)
-        /*
-        let chan = context.channel
-        if let queue = self.server.getJsQueue() {
-            queue.async(flags: .barrier) {
-                // call handler
-                let msg = self.server.handleCallJs(req);
-                // send response back
-                withExtendedLifetime(DispatchGuard(self.server.mutex)) {
-                    // check whether we can send
-                    if !self.server.isRunningUnsafe() {
-                        return
-                    }
-                    sendWebSocket(chan, msg)
-                }
-            }
+    private func onOpen(_ channel: Channel) {
+        guard let cb = callbacks.onOpen else {
+            return
         }
-        */
-        // TODO
+        let resp = runOnJsThreadSync(cb)
+        sendResponse(channel, resp)
+    }
+    
+    private func onMessage(_ channel: Channel, _ frame: WebSocketFrame) {
+        guard let om = callbacks.onMessage else {
+            return
+        }
+        var data = frame.unmaskedData
+        let message = data.readString(length: data.readableBytes) ?? "{}"
+        let cb = JSCoreScript(om.module, om.func_, [message])
+        let resp = runOnJsThreadSync(cb)
+        sendResponse(channel, resp)
     }
 
-    private func receivedClose(context: ChannelHandlerContext, frame: WebSocketFrame) {
+    private func onClose(_ context: ChannelHandlerContext, _ channel: Channel, _ frame: WebSocketFrame) {
         // This is an unsolicited close. We're going to send a response frame and
         // then, when we've sent it, close up shop. We should send back the close code the remote
         // peer sent us, unless they didn't send one at all.
-        wsRegistry.removeChannel(context.channel)
+        wsRegistry.removeChannel(channel)
         var data = frame.unmaskedData
-        let closeDataCode = data.readSlice(length: 2) ?? context.channel.allocator.buffer(capacity: 0)
+        let closeDataCode = data.readSlice(length: 2) ?? channel.allocator.buffer(capacity: 0)
         let closeFrame = WebSocketFrame(fin: true, opcode: .connectionClose, data: closeDataCode)
-        _ = context.writeAndFlush(self.wrapOutboundOut(closeFrame)).map {
+        _ = channel.writeAndFlush(self.wrapOutboundOut(closeFrame)).map {
             context.close(promise: nil)
         }
+        guard let cb = callbacks.onClose else {
+            return
+        }
+        let resp = runOnJsThreadSync(cb)
+        sendResponse(channel, resp)
     }
         
-    private func pong(context: ChannelHandlerContext, frame: WebSocketFrame) {
+    private func onPing(_ channel: Channel, _ frame: WebSocketFrame) {
         var frameData = frame.data
         let maskingKey = frame.maskKey
         if let maskingKey = maskingKey {
             frameData.webSocketUnmask(maskingKey)
         }
         let responseFrame = WebSocketFrame(fin: true, opcode: .pong, data: frameData)
-        context.writeAndFlush(self.wrapOutboundOut(responseFrame), promise: nil)
+        channel.writeAndFlush(self.wrapOutboundOut(responseFrame), promise: nil)
+    }
+    
+    private func sendResponse(_ channel: Channel, _ resp: String) {
+        if !resp.isEmpty {
+            withExtendedLifetime(WiltonDispatchGuard(mutex)) {
+                if !serverRunning.get() {
+                    return
+                }
+                sendWebSocket(channel, resp)
+            }
+        }
     }
 }

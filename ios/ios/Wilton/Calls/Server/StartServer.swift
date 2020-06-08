@@ -16,8 +16,26 @@ class StartServer : Call {
     }
     
     func call(_ data: String) throws -> String {
-        print("Server/StartServer: NOT IMPLEMENTED")
-        // TODO
+        let opts = try wiltonFromJson(data, Options.self)
+        //guard let path = opts.path else {
+        //    throw WiltonException("Server/Start: Required parameter 'path' not specified")
+        //}
+        // single threaded usage here
+        if let _ = holder.get() {
+            throw WiltonException("Server/Start: Server is already running")
+        }
+        let server = try Server(opts.ipAddress, opts.tcpPort,
+                opts.documentRoots ?? [DocumentRoot](),
+                opts.websocket ?? WebSocketCallbacks(), opts.httpPostHandler);
+        holder.put(server);
         return ""
+    }
+    
+    private class Options : Codable {
+        var ipAddress: String = "127.0.0.1"
+        var tcpPort: Int = 0
+        var documentRoots: [DocumentRoot]? = [DocumentRoot]()
+        var websocket: WebSocketCallbacks? = WebSocketCallbacks()
+        var httpPostHandler: JSCoreScript?
     }
 }

@@ -9,5 +9,17 @@
 import Foundation
 
 class ServerHolder {
-    // TODO
+
+    private var server: Server? = nil
+
+    func get() -> Server? {
+        return server
+    }
+
+    func put(_ instance: Server) {
+        if let _ = server {
+            print("Server/Holder: Invalid state: server is already running")
+        }
+        self.server = instance;
+    }
 }

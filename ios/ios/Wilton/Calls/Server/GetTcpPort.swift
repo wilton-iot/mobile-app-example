@@ -16,9 +16,11 @@ class GetTcpPort : Call {
     }
         
     func call(_ data: String) throws -> String {
-        print("Server/GetTcpPort: NOT IMPLEMENTED")
-        // TODO
-        let json = wiltonToJson(Result(8080))
+        guard let server = holder.get() else {
+            throw WiltonException("Server/GetTcpPort: server is not running")
+        }
+        let port = server.getListeningPort()
+        let json = wiltonToJson(Result(port))
         return json
     }
     

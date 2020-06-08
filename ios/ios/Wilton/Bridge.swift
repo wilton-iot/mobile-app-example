@@ -44,9 +44,9 @@ class Bridge: NSObject, BridgeExport {
             // server
             let holder = ServerHolder()
             calls["server_start"] = StartServer(holder)
-            //calls.put("server_stop", new StopServer(holder));
+            calls["server_stop"] = StopServer(holder)
             calls["server_get_tcp_port"] = GetTcpPort(holder)
-            //calls.put("server_broadcast_web_socket", new BroadcastWebSocket(holder));
+            calls["server_broadcast_web_socket"] = BroadcastWebSocket(holder)
             // thread
             //calls.put("thread_sleep_millis", new SleepMillis());
             // ui

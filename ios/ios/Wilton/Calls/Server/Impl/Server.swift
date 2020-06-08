@@ -7,25 +7,113 @@
 //
 
 import Foundation
+import NIO
+import NIOHTTP1
+import NIOWebSocket
 
 class Server {
+    private let mutex = DispatchSemaphore(value: 1)
+    private let loopGroup: MultiThreadedEventLoopGroup
+    private let wsRegistry: WebSocketRegistry
+    private let serverChannel: Channel
+    private var running = true
     
     init(_ hostname: String, _ port: Int, _ droots: [DocumentRoot],
          _ callbacks: WebSocketCallbacks, _ httpPostHandler: JSCoreScript?) throws {
-        print("Server/Server: NOT IMPLEMENTED")
+        
+        loopGroup = MultiThreadedEventLoopGroup(numberOfThreads: 1)
+        wsRegistry = WebSocketRegistry(mutex)
+        let upgrader = createUpgrader(wsRegistry)
+        let bootstrap = ServerBootstrap(group: loopGroup)
+            .serverChannelOption(ChannelOptions.backlog, value: 256)
+            .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
+            .childChannelInitializer { channel in
+                let httpHandler = HTTPHandler()
+                let config = createUpgradeConfig(upgrader, channel, httpHandler)
+                return channel.pipeline.configureHTTPServerPipeline(withServerUpgrade: config).flatMap {
+                    channel.pipeline.addHandler(httpHandler)
+                }
+            }
+            .childChannelOption(ChannelOptions.socket(IPPROTO_TCP, TCP_NODELAY), value: 1)
+            .childChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
+            .childChannelOption(ChannelOptions.maxMessagesPerRead, value: 1)
+        do {
+            serverChannel = try bootstrap.bind(host: hostname, port: port).wait()
+        } catch {
+            throw WiltonException("Server/Server: Error starting server, message: [\(error)]")
+        }
     }
     
     func broadcastWebSocket(_ message: String) {
-        // TODO
+        withExtendedLifetime(WiltonDispatchGuard(mutex)) {
+            if !self.running {
+                return
+            }
+            for chan in wsRegistry.channels() {
+                sendWebSocket(chan, message)
+            }
+        }
     }
     
     func getListeningPort() -> Int {
-        // TODO
-        return 8080
+        return serverChannel.localAddress?.port ?? -1
     }
     
     func stop() {
+        // switch state to stopped
+        let canStop = withExtendedLifetime(WiltonDispatchGuard(mutex)) { () -> Bool in
+            let res = self.running
+            running = false
+            return res
+        }
         
+        // check already stopped
+        if !canStop {
+            return
+        }
+        
+        // stop server
+        serverChannel.close().whenComplete { result in
+            switch result {
+            case .failure(let error):
+                print("Server/Server: Failed to stop server channel: \(error)")
+            case .success:
+                self.loopGroup.shutdownGracefully { error in
+                    if let error = error {
+                        print("Server/Server: Failed to stop server loop group: \(error)")
+                    }
+                }
+            }
+        }
     }
-    
+}
+
+func sendWebSocket(_ chan: Channel, _ msg: String) {
+    if !chan.isActive {
+        return
+    }
+    var buffer = chan.allocator.buffer(capacity: msg.count)
+    buffer.writeString(msg)
+    let frame = WebSocketFrame(fin: true, opcode: .text, data: buffer)
+    // channel is thread-safe
+    _ = chan.writeAndFlush(frame)
+}
+
+fileprivate func createUpgrader(_ wsRegistry: WebSocketRegistry) -> NIOWebSocketServerUpgrader {
+    return NIOWebSocketServerUpgrader(shouldUpgrade: { (channel: Channel, head: HTTPRequestHead) in
+        channel.eventLoop.makeSucceededFuture(HTTPHeaders())
+    }, upgradePipelineHandler: { (channel: Channel, _: HTTPRequestHead) in
+        wsRegistry.addChannel(channel)
+        return channel.pipeline.addHandler(WebSocketHandler(wsRegistry))
+    })
+}
+
+fileprivate func createUpgradeConfig(_ upgrader: NIOWebSocketServerUpgrader, _ channel: Channel,
+                         _ httpHandler: HTTPHandler) -> NIOHTTPServerUpgradeConfiguration {
+    return NIOHTTPServerUpgradeConfiguration(
+        upgraders: [ upgrader ],
+        completionHandler: { _ in
+            channel.pipeline.removeHandler(httpHandler, promise: nil)
+        }
+    )
 }

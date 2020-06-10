@@ -11,11 +11,13 @@ import Foundation
 class WebViewLoad : Call {
     func call(_ data: String) throws -> String {
         let opts = try wiltonFromJson(data, Options.self)
-        guard var url = opts.url else {
+        guard let url = opts.url else {
             throw WiltonException("Fs/ReadFile: Required parameter 'path' not specified")
         }
-        print("Ui/WebViewLoad: NOT IMPLEMENTED")
-        // TODO
+        DispatchQueue.main.async {
+            viewContext.webViewUrl = url
+            viewContext.webViewShow.toggle()
+        }
         return ""
     }
     

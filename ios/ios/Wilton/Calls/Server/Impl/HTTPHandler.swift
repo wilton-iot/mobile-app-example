@@ -90,7 +90,7 @@ class HTTPHandler : ChannelInboundHandler, RemovableChannelHandler {
             handle404(context)
             return
         }
-        let path = String(req.uri.suffix(droot.resource.count))
+        let path = String(req.uri.suffix(req.uri.count - droot.resource.count))
         let dir = URL(string: droot.dirPath) ?? URL(string: "INVALID_PATH")!
         let file = dir.appendingPathComponent(path, isDirectory: false)
         do {

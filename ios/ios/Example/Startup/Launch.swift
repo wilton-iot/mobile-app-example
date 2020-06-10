@@ -11,8 +11,8 @@ import Foundation
 func launchApplication() {
     do {
         wiltonBridge().addAppCalls(appCalls())
-        let testScript = JSCoreScript("wilton-mobile/test", nil, nil)
-        _ = try jscoreRunner().run(testScript)
+        //let testScript = JSCoreScript("wilton-mobile/test", nil, nil)
+        //_ = try jscoreRunner().run(testScript)
         let script = JSCoreScript("example/index", "main", ["--ios-launch"])
         _ = try jscoreRunner().run(script)
     } catch {

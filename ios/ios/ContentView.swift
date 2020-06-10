@@ -7,10 +7,42 @@
 //
 
 import SwiftUI
+import WebKit
+
+class ViewContext: ObservableObject {
+    @Published var webViewShow = false
+    var webViewUrl = ""
+    var webView: WKWebView? = nil
+}
+
+struct AppWebView : UIViewRepresentable {
+    @EnvironmentObject var vc: ViewContext
+    
+    func makeUIView(context: Context) -> WKWebView  {
+        if nil == vc.webView {
+            vc.webView = WKWebView()
+        }
+        return vc.webView!
+    }
+    
+    func updateUIView(_ uiView: WKWebView, context: UIViewRepresentableContext<AppWebView>) {
+        let url = URL(string: vc.webViewUrl) ?? URL(string: "INVALID_URL")!
+        let req = URLRequest(url: url)
+        uiView.load(req)
+    }
+}
 
 struct ContentView: View {
+    @EnvironmentObject var vc: ViewContext
+    
     var body: some View {
-        Text("Hello, World!")
+        Group() {
+            if vc.webViewShow {
+                AppWebView()
+            } else {
+                Text("...")
+            }
+        }
     }
 }
 

@@ -18,6 +18,7 @@ class StopServer : Call {
     func call(_ data: String) throws -> String {
         if let server = holder.get() {
             server.stop()
+            holder.put(nil)
         }
         return ""
     }

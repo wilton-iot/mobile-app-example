@@ -15,21 +15,21 @@ class LoadModuleResource : Call {
         guard let path = opts.url else {
             throw WiltonException("Compat/LoadModuleResource: Required parameter 'url' not specified")
         }
-        if (path.hasPrefix(WILTON_ZIP_PROTO)) {
+        if path.hasPrefix(WILTON_ZIP_PROTO) {
             throw WiltonException("Compat/LoadModuleResource: Invalid protocol specified:" +
                     " '\(WILTON_ZIP_PROTO)' URLs are not supported in wilton-mobile," +
                     " url: [\(path)]");
         }
-        if (opts.hex) {
-            let bytes = try readFileToBytes(path);
-            return encodeHex(bytes);
+        if opts.hex ?? false {
+            let bytes = try readFileToBytes(path)
+            return encodeHex(bytes)
         } else {
-            return try readFileToString(path);
+            return try readFileToString(path)
         }
     }
     
     class Options : Codable {
         var url: String?
-        var hex: Bool = false
+        var hex: Bool?
     }
 }

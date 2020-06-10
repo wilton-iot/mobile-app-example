@@ -18,7 +18,7 @@ class WriteFile : Call {
             throw WiltonException("Fs/WriteFile: Required parameter 'data' not specified")
         }
         do {
-            if opts.hex {
+            if opts.hex ?? false {
                 let bytes = decodeHex(data)
                 try writeBytesToFile(path, bytes)
             } else {
@@ -33,6 +33,6 @@ class WriteFile : Call {
     class Options : Codable {
         var path: String?
         var data: String?
-        var hex: Bool = false
+        var hex: Bool?
     }
 }

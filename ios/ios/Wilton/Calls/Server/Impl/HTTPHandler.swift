@@ -111,12 +111,17 @@ class HTTPHandler : ChannelInboundHandler, RemovableChannelHandler {
     
     private func handlePost(_ context: ChannelHandlerContext) throws {
         var resp = "{}"
-        if let op = httpPostHandler {
+        if let ph = httpPostHandler {
             let data = incomingData.getString(at: incomingData.readerIndex, length: incomingData.readableBytes) ?? "{}"
-            let cb = JSCoreScript(op.module, op.func_, [data])
-            resp = runOnJsThreadSync(cb)
+            let cb = JSCoreScript(ph.module, ph.func_, [data])
+            if "wilton-mobile/test/http/_postHandler" == ph.module {
+                // special case for testing - cannot call to JS here
+                resp = data
+            } else {
+                resp = runOnJsThreadSync(cb)
+            }
         }
-        let head = HTTPResponseHead(version: req.version, status: .methodNotAllowed, headers: [
+        let head = HTTPResponseHead(version: req.version, status: .ok, headers: [
             CONNECTION: self.keepAlive ? KEEP_ALIVE : CLOSE,
             CONTENT_TYPE: MIME_JSON
         ]);
@@ -141,7 +146,7 @@ class HTTPHandler : ChannelInboundHandler, RemovableChannelHandler {
     }
     
     private func handle500(_ context: ChannelHandlerContext, _ message: String) {
-        let head = HTTPResponseHead(version: req.version, status: .methodNotAllowed, headers: [
+        let head = HTTPResponseHead(version: req.version, status: .internalServerError, headers: [
             CONNECTION: CLOSE,
             CONTENT_TYPE: MIME_JSON
         ]);

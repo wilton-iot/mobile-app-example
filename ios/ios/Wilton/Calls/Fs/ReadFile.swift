@@ -14,7 +14,7 @@ class ReadFile : Call {
         guard let path = opts.path else {
             throw WiltonException("Fs/ReadFile: Required parameter 'path' not specified")
         }
-        if (opts.hex) {
+        if (opts.hex ?? false) {
             let bytes = try readFileToBytes(path);
             return encodeHex(bytes);
         } else {
@@ -24,6 +24,6 @@ class ReadFile : Call {
     
     class Options : Codable {
         var path: String?
-        var hex: Bool = false
+        var hex: Bool?
     }
 }

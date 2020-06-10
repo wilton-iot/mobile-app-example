@@ -16,9 +16,10 @@ class ServerHolder {
         return server
     }
 
-    func put(_ instance: Server) {
-        if let _ = server {
+    func put(_ instance: Server?) {
+        if nil != server && nil != instance {
             print("Server/Holder: Invalid state: server is already running")
+            return
         }
         self.server = instance;
     }

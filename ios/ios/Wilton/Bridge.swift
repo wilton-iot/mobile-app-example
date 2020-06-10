@@ -36,11 +36,9 @@ class Bridge: NSObject, BridgeExport {
             calls["fs_rmdir"] = RmDir()
             calls["fs_unlink"] = Unlink()
             calls["fs_write_file"] = WriteFile()
-            /*
             // httpclient
-            calls.put("httpclient_send_request", new SendRequest());
-            calls.put("httpclient_send_file", new SendFile());
-             */
+            calls["httpclient_send_request"] = SendRequest()
+            calls["httpclient_send_file"] = SendFile()
             // server
             let holder = ServerHolder()
             calls["server_start"] = StartServer(holder)

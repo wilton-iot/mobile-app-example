@@ -24,7 +24,7 @@ class StartServer : Call {
         if let _ = holder.get() {
             throw WiltonException("Server/Start: Server is already running")
         }
-        let server = try Server(opts.ipAddress, opts.tcpPort,
+        let server = try Server(opts.ipAddress ?? "127.0.0.1", opts.tcpPort ?? 0,
                 opts.documentRoots ?? [DocumentRoot](),
                 opts.websocket ?? WebSocketCallbacks(), opts.httpPostHandler);
         holder.put(server);
@@ -32,8 +32,8 @@ class StartServer : Call {
     }
     
     private class Options : Codable {
-        var ipAddress: String = "127.0.0.1"
-        var tcpPort: Int = 0
+        var ipAddress: String?
+        var tcpPort: Int?
         var documentRoots: [DocumentRoot]? = [DocumentRoot]()
         var websocket: WebSocketCallbacks? = WebSocketCallbacks()
         var httpPostHandler: JSCoreScript?

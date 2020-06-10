@@ -9,7 +9,7 @@
 import Foundation
 
 class DocumentRoot : Codable {
-    var resource: String?
-    var dirPath: String?
+    var resource: String = ""
+    var dirPath: String = ""
     var mimeTypes: [String: String]?
 }

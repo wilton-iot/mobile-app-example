@@ -84,21 +84,29 @@ class HTTPHandler : ChannelInboundHandler, RemovableChannelHandler {
         }
     }
     
+    // TODO: caching
     private func handleFile(_ context: ChannelHandlerContext) throws {
-        let reqPathNoSlash = String(req.uri.suffix(req.uri.count - 1));
-        // TODO: docroots
-        /*
-        let file = wiltonFilesDir.appendingPathComponent(reqPathNoSlash, isDirectory: false);
-        if FileManager.default.isReadableFile(atPath: file.path) {
-            let bytes = readFile(file)
-            let head = createRespHeadPart(req, file)
-            _ = chan.write(head)
-            let body = createRespBodyPart(req, chan.allocator, bytes)
-            _ = chan.write(body)
-        } else {
-            handle404(chan, req)
+        guard let droot = chooseDroot(req.uri) else {
+            handle404(context)
+            return
         }
-        */
+        let path = String(req.uri.suffix(droot.resource.count))
+        let dir = URL(string: droot.dirPath) ?? URL(string: "INVALID_PATH")!
+        let file = dir.appendingPathComponent(path, isDirectory: false)
+        do {
+            let bytes = try readFileToBytes(file.relativePath)
+            let mime = mimeType(droot, path)
+            let head = HTTPResponseHead(version: req.version, status: .ok, headers: [
+                CONNECTION: self.keepAlive ? KEEP_ALIVE : CLOSE,
+                CONTENT_TYPE: mime
+            ])
+            var body = context.channel.allocator.buffer(capacity: bytes.count)
+            body.writeBytes(bytes)
+            _ = context.channel.write(HTTPServerResponsePart.head(head))
+            _ = context.channel.write(HTTPServerResponsePart.body(.byteBuffer(body)))
+        } catch {
+            handle404(context)
+        }
     }
     
     private func handlePost(_ context: ChannelHandlerContext) throws {
@@ -142,6 +150,15 @@ class HTTPHandler : ChannelInboundHandler, RemovableChannelHandler {
         body.writeString(resp)
         _ = context.channel.write(HTTPServerResponsePart.head(head))
         _ = context.channel.write(HTTPServerResponsePart.body(.byteBuffer(body)))
+    }
+    
+    private func chooseDroot(_ uri: String) -> DocumentRoot? {
+        for dr in droots {
+            if uri.hasPrefix(dr.resource){
+                return dr
+            }
+        }
+        return nil
     }
 
     private func finalize(_ context: ChannelHandlerContext) {

@@ -28,7 +28,7 @@ class Server {
             .serverChannelOption(ChannelOptions.backlog, value: 256)
             .serverChannelOption(ChannelOptions.socket(SocketOptionLevel(SOL_SOCKET), SO_REUSEADDR), value: 1)
             .childChannelInitializer { channel in
-                let httpHandler = HTTPHandler()
+                let httpHandler = HTTPHandler(droots, httpPostHandler)
                 let config = createUpgradeConfig(upgrader, channel, httpHandler)
                 return channel.pipeline.configureHTTPServerPipeline(withServerUpgrade: config).flatMap {
                     channel.pipeline.addHandler(httpHandler)
